@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
+import reactor.core.publisher.Flux;
 
 @Configuration
 @Slf4j
@@ -32,6 +33,14 @@ public class RoutesConfig {
         return RouterFunctions.route(
                 RequestPredicates.GET("/reparam").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
                 ,handler::getParam
+        );
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> saveProduct(FluxHandler handler){
+        return RouterFunctions.route(
+          RequestPredicates.GET("/save-product").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+                ,handler::saveProduct
         );
     }
 }

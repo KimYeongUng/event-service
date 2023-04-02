@@ -3,6 +3,7 @@ package com.example.eventservice.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -49,11 +50,22 @@ public class FluxHandler {
 
     public Mono<ServerResponse> getParam(ServerRequest request){
         Optional<String> s = request.queryParam("param1");
-        String text = s.get();
+        String text =  s.get();
         Mono<String> map = Mono.just(text);
         map.subscribe(item->log.info("param: {}",item));
 
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromProducer(map,String.class));
     }
+
+    public Mono<ServerResponse> saveProduct(ServerRequest request){
+        MultiValueMap<String, String> s = request.queryParams();
+        s.forEach((k,v)->log.info("param:{} {}",k,v));
+        String ok = "ok";
+        Mono<String> map = Mono.just(ok);
+        map.subscribe();
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromProducer(map,String.class));
+    }
+
 }
