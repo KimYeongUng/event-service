@@ -67,5 +67,4 @@ public class FluxHandler {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromProducer(map,String.class));
     }
-
 }
