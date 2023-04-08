@@ -1,6 +1,7 @@
 package com.example.eventservice.router;
 
 import com.example.eventservice.handler.FluxHandler;
+import com.example.eventservice.handler.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,7 @@ import org.springframework.web.reactive.function.server.*;
 @Configuration
 @Slf4j
 public class RoutesConfig {
-    // add bean
+
     @Bean
     public RouterFunction<ServerResponse> route(FluxHandler handler){
         return RouterFunctions.route(
@@ -36,10 +37,10 @@ public class RoutesConfig {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> saveProduct(FluxHandler handler){
+    public RouterFunction<ServerResponse> saveProduct(RedisHandler handler){
         return RouterFunctions.route(
           RequestPredicates.GET("/save-product").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
-                ,handler::saveProduct
+                ,handler::setData
         );
     }
 }

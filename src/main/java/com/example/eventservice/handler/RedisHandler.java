@@ -1,32 +1,42 @@
 package com.example.eventservice.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import reactor.core.publisher.Flux;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
+@Component
 public class RedisHandler {
 
-    private final ReactiveRedisConnectionFactory factory;
-    private final ReactiveRedisOperations<Object,Object> operations;
-    private final ReactiveRedisTemplate<Object,Object> template;
-    private static final AtomicInteger count = new AtomicInteger(0);
+    @Autowired
+    RedisTemplate redisTemplate;
 
+    Mono<Map<String,String>> resmap;
 
-    RedisHandler(ReactiveRedisConnectionFactory factory,ReactiveRedisOperations<Object,Object> operations,
-                 ReactiveRedisTemplate<Object,Object> template){
-        this.factory = factory;
-        this.operations = operations;
-        this.template = template;
-    }
+    public Mono<ServerResponse> setData(ServerRequest request){
+        Map<String,String> req = request.queryParams().toSingleValueMap();
+        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
 
-    Flux<Object> getList(){
-        return operations.keys("*")
-                .flatMap(key->operations.opsForValue().get(key));
+        req.forEach((k,v)->{
+            log.info(k+" : "+v);
+            valueOperations.set(k.trim(),v.trim());
+        });
+
+        Map<String,String> res = new HashMap<>();
+        res.put("res","ok");
+        resmap = Mono.just(res);
+        resmap.subscribe();
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromProducer(resmap,Map.class));
     }
 }
