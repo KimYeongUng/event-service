@@ -57,14 +57,4 @@ public class FluxHandler {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromProducer(map,String.class));
     }
-
-    public Mono<ServerResponse> saveProduct(ServerRequest request){
-        MultiValueMap<String, String> s = request.queryParams();
-        s.forEach((k,v)->log.info("param:{} {}",k,v));
-        String ok = "ok";
-        Mono<String> map = Mono.just(ok);
-        map.subscribe();
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromProducer(map,String.class));
-    }
 }

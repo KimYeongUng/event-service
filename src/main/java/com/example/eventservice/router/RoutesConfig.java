@@ -37,10 +37,18 @@ public class RoutesConfig {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> saveProduct(RedisHandler handler){
+    public RouterFunction<ServerResponse> setData(RedisHandler handler){
         return RouterFunctions.route(
-          RequestPredicates.GET("/save-product").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+          RequestPredicates.GET("/setdata").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
                 ,handler::setData
+        );
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> getData(RedisHandler handler){
+        return RouterFunctions.route(
+                RequestPredicates.GET("/getdata").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+                ,handler::getData
         );
     }
 }
