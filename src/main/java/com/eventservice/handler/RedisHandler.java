@@ -23,14 +23,14 @@ import java.util.Optional;
 public class RedisHandler {
 
     @Autowired
-    RedisTemplate<String, String> redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
     Mono<Map<String,String>> resmap;
 
-    public Mono<ServerResponse> setUserInfo(ServerRequest request){
+    public Mono<ServerResponse> set(ServerRequest request){
         Map<String,String> req = request.queryParams().toSingleValueMap();
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
 
         req.forEach((k,v)->{
             valueOperations.set(k.trim(),v.trim());
@@ -47,11 +47,11 @@ public class RedisHandler {
     public Mono<ServerResponse> getUserInfo(ServerRequest request){
         Map<String,String> req = request.queryParams().toSingleValueMap();
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
         Map<String,String> map = new HashMap<>();
         req.forEach((k,v)-> {
-                    log.info(valueOperations.get(v));
-                    map.put(v, valueOperations.get(v));
+                    log.info((String) valueOperations.get(v));
+                    map.put(v, (String) valueOperations.get(v));
                 }
         );
         resmap = Mono.just(map);
@@ -60,16 +60,16 @@ public class RedisHandler {
                 .body(BodyInserters.fromProducer(resmap,Map.class));
     }
 
-    public Mono<ServerResponse> set(ServerRequest request){
+    public Mono<ServerResponse> setUserInfo(ServerRequest request){
 
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-
+        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
         UserVO vo = new UserVO();
         vo.setId(request.queryParam("userid").get());
         vo.setName(request.queryParam("username").get());
         vo.setPasswd(request.queryParam("passwd").get());
 
-
+        valueOperations.set(request.queryParam("userid").get(),vo);
 
         Mono<String> res = Mono.just(request.queryParam("userid").get());
         res.subscribe();
