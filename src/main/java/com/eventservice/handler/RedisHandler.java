@@ -14,9 +14,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
+
 
 @Slf4j
 @Component
@@ -25,46 +24,13 @@ public class RedisHandler {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
-    Mono<Map<String,String>> resmap;
-
-    public Mono<ServerResponse> set(ServerRequest request){
-        Map<String,String> req = request.queryParams().toSingleValueMap();
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
-
-        req.forEach((k,v)->{
-            valueOperations.set(k.trim(),v.trim());
-        });
-
-        Map<String,String> res = new HashMap<>();
-        res.put("res","ok");
-        resmap = Mono.just(res);
-        resmap.subscribe();
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromProducer(resmap,Map.class));
-    }
-
-    public Mono<ServerResponse> getUser(ServerRequest request){
-        Map<String,String> req = request.queryParams().toSingleValueMap();
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
-        Map<String,String> map = new HashMap<>();
-        req.forEach((k,v)-> {
-                    log.info((String) valueOperations.get(v));
-                    map.put(v, (String) valueOperations.get(v));
-                }
-        );
-        resmap = Mono.just(map);
-
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromProducer(resmap,Map.class));
-    }
-
     public Mono<ServerResponse> setUserInfo(ServerRequest request){
 
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
         ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
         UserVO vo = new UserVO();
+
+        // Optional isPresent 분기처리 필요
         vo.setId(request.queryParam("userid").get());
         vo.setName(request.queryParam("username").get());
         vo.setPasswd(request.queryParam("passwd").get());
@@ -84,7 +50,7 @@ public class RedisHandler {
         ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
         UserVO vo = (UserVO) valueOperations.get(userid);
 
-        Mono<UserVO> res = Mono.just(vo);
+        Mono<UserVO> res = Mono.just(Objects.requireNonNull(vo));
         res.subscribe();
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromProducer(res,UserVO.class));
