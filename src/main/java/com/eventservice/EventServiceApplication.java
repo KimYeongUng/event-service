@@ -1,4 +1,4 @@
-package com.example.eventservice;
+package com.eventservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

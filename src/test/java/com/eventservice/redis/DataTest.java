@@ -1,4 +1,4 @@
-package com.example.eventservice.redis;
+package com.eventservice.redis;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;

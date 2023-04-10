@@ -1,7 +1,7 @@
-package com.example.eventservice.router;
+package com.eventservice.router;
 
-import com.example.eventservice.handler.FluxHandler;
-import com.example.eventservice.handler.RedisHandler;
+import com.eventservice.handler.RedisHandler;
+import com.eventservice.handler.FluxHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,18 +37,18 @@ public class RoutesConfig {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> setData(RedisHandler handler){
+    public RouterFunction<ServerResponse> setUser(RedisHandler handler){
         return RouterFunctions.route(
-          RequestPredicates.GET("/setdata").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
-                ,handler::setData
+          RequestPredicates.GET("/setuser").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+                ,handler::setUserInfo
         );
     }
 
     @Bean
-    public RouterFunction<ServerResponse> getData(RedisHandler handler){
+    public RouterFunction<ServerResponse> getUser(RedisHandler handler){
         return RouterFunctions.route(
-                RequestPredicates.GET("/getdata").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
-                ,handler::getData
+                RequestPredicates.GET("/getuser").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
+                ,handler::get
         );
     }
 }
