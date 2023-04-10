@@ -44,7 +44,7 @@ public class RedisHandler {
                 .body(BodyInserters.fromProducer(resmap,Map.class));
     }
 
-    public Mono<ServerResponse> getUserInfo(ServerRequest request){
+    public Mono<ServerResponse> getUser(ServerRequest request){
         Map<String,String> req = request.queryParams().toSingleValueMap();
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
         ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
@@ -77,15 +77,16 @@ public class RedisHandler {
                 .body(BodyInserters.fromProducer(res,String.class));
     }
 
-    public Mono<ServerResponse> get(ServerRequest request){
+    public Mono<ServerResponse> getUserInfo(ServerRequest request){
         String userid = request.queryParam("userid").get();
         log.info("usrID: "+userid);
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserVO.class));
-        redisTemplate.opsForValue();
+        ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
+        UserVO vo = (UserVO) valueOperations.get(userid);
 
-        Mono<String> res = Mono.just(userid);
+        Mono<UserVO> res = Mono.just(vo);
         res.subscribe();
-        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
-                .body(BodyInserters.fromProducer(res,String.class));
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromProducer(res,UserVO.class));
     }
 }

@@ -48,7 +48,7 @@ public class RoutesConfig {
     public RouterFunction<ServerResponse> getUser(RedisHandler handler){
         return RouterFunctions.route(
                 RequestPredicates.GET("/getuser").and(RequestPredicates.accept(MediaType.APPLICATION_JSON))
-                ,handler::get
+                ,handler::getUserInfo
         );
     }
 }
