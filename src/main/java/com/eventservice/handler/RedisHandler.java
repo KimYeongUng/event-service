@@ -1,5 +1,6 @@
 package com.eventservice.handler;
 
+import com.eventservice.encrypt.Encrypt;
 import com.eventservice.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 
@@ -20,8 +22,11 @@ import java.util.Objects;
 @Component
 public class RedisHandler {
 
-    @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    RedisHandler(RedisTemplate<String,Object> redisTemplate){
+        this.redisTemplate = redisTemplate;
+    }
 
     public Mono<ServerResponse> setUserInfo(ServerRequest request){
 
@@ -32,7 +37,13 @@ public class RedisHandler {
         // Optional isPresent 분기처리 필요
         vo.setId(request.queryParam("userid").get());
         vo.setName(request.queryParam("username").get());
-        vo.setPasswd(request.queryParam("passwd").get());
+        String passwd = request.queryParam("passwd").get();
+
+        try {
+            vo.setPasswd(Encrypt.sha512(passwd));
+        }catch (NoSuchAlgorithmException e){
+            log.error("err");
+        }
 
         valueOperations.set(request.queryParam("userid").get(),vo);
 
